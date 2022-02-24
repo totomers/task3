@@ -1,1 +1,13 @@
-<p>map works!</p>
+<div class="main-container">
+    <div class="form-control">
+        <label >Address:</label>
+        <input #autocomplete type="text">
+    </div>
+</div>
+
+<div #map style="width:400px;height:400px"></div>
+
+<div #infowindowContent>
+    <span #placeName class="title"></span><br />
+    <span #placeAddress></span>
+  </div>
