@@ -28,7 +28,6 @@ export class MapComponent implements OnInit {
   ngOnInit(): void {
     const mapHTMLDiv = document.getElementById('mapDiv');
     this.mapService.setMap(mapHTMLDiv!);
-
     const infoWindowHTMLDiv = document.getElementById('infoWindowDiv');
     this.mapService.setInfoWindow(infoWindowHTMLDiv!);
   }
@@ -38,5 +37,9 @@ export class MapComponent implements OnInit {
   }
   toggleDirectionsBar() {
     this.isDirectionsBarToggled = this.isDirectionsBarToggled ? false : true;
+  }
+
+  calculateAndDisplayRoute() {
+    this.mapService.calculateAndDisplayRoute(google.maps.TravelMode.BICYCLING);
   }
 }

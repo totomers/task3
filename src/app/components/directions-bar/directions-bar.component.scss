@@ -1,5 +1,5 @@
 @import "../../../styles//mixins.scss";
-
+@import "../../../styles/variables.scss";
 .main-container {
   @include flex-center(column);
   @include card();
@@ -7,9 +7,35 @@
 
 .input-group {
   padding: 3px;
+  width: 80%;
+  .form-control {
+    flex: 1;
+  }
+  @include flex-between();
 }
 
 .button-group {
   @include flex-between();
+  width: 100%;
+}
+
+.selected {
+  color: $primary;
+  background-color: $secondary;
+  box-shadow: inset 0px 0px 0px 3px 3px $primary;
+}
+
+.icon-button {
+  color: $darkgray;
+
+  cursor: pointer;
+  &:hover {
+    color: rgba(0, 0, 0, 0.712);
+  }
+}
+
+.direction-button {
+  color: white;
+  background-color: $primary;
   width: 100%;
 }

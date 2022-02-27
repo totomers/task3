@@ -18,16 +18,19 @@ export class MapService {
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer();
   DEFAULT_MAP_LOCATION: google.maps.LatLng;
-  originAddress: google.maps.LatLng;
-  destinationAddress: google.maps.LatLng;
+  originAddress: google.maps.places.PlaceResult;
+  destinationAddress: google.maps.places.PlaceResult;
   CUSTOM_MAP_STYLE_ID: string = 'd6b0915170f4b0bf';
 
   constructor(private addressService: AddressService) {
     this.DEFAULT_MAP_LOCATION = this.addressService.getWorkAddressLocation();
+    this.setOriginFromQuery(ADDRESSES.home.address);
+    this.setDestinationFromQuery(ADDRESSES.work.address);
+    // this.setOriginFromQuery(ADDRESSES.work.address, this.destinationAddress);
+    // console.log(this.originAddress.name);
   }
 
   //Initialize a google map object by binding it to an element on the DOM.
-  initMap() {}
 
   setMap(el: HTMLElement) {
     const mapDiv = el;
@@ -81,11 +84,12 @@ export class MapService {
   setAutoCompleteInput(el: HTMLInputElement) {
     if (!el) return;
     //CONFIGURE
+
     const options: google.maps.places.AutocompleteOptions = {
       fields: ['formatted_address', 'geometry', 'name'],
       componentRestrictions: { country: 'IL' },
       strictBounds: false,
-      types: ['establishment'],
+      types: ['establishment', 'address'],
     };
     const inputElement = el;
 
@@ -94,6 +98,8 @@ export class MapService {
       inputElement,
       options
     );
+    // const currentPlace = this.getCurrentPlaceValue();
+    // autocomplete.set('place', this.originAddress);
 
     //GET MAP
     const map = this.getMap()!;
@@ -107,12 +113,15 @@ export class MapService {
   }
 
   bindSearchInput(el: HTMLInputElement) {
+    console.log('binding serach input');
     const autocomplete = this.setAutoCompleteInput(el);
+    console.log('autocomplete:', autocomplete);
     if (!autocomplete) return;
-
+    console.log('i am defined', autocomplete);
     //ADD SEARCH FUNCTIONALITY ON DROPDOWN CLICK EVENT
     autocomplete.addListener('place_changed', () => {
       // this.infowindow.close();
+      console.log('place changed');
       this.searchMarker.setVisible(false);
       const place = autocomplete.getPlace();
       this.setCurrentPlace(place);
@@ -130,7 +139,7 @@ export class MapService {
         this.changeMapBounds(place.geometry.viewport);
       } else {
         this.changeMapLocation(place.geometry.location);
-        this.originAddress = place.geometry.location; //for directions feature to automatically start directions panel with the last searched location
+        this.originAddress = place; //for directions feature to automatically start directions panel with the last searched location
       }
       this.setSearchMarkerPosition(place.geometry.location);
 
@@ -177,26 +186,26 @@ export class MapService {
   bindOriginInput(el: HTMLInputElement) {
     const autocomplete = this.setAutoCompleteInput(el);
     if (!autocomplete) return;
-    console.log(this.getCurrentPlaceValue());
-    console.log(autocomplete);
+    el.value = this.originAddress.formatted_address!;
     autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
       if (place.geometry?.location) {
         this.changeMapLocation(place.geometry?.location);
         this.setSearchMarkerPosition(place.geometry.location);
-        this.originAddress = place.geometry.location;
+        this.originAddress = place;
       }
     });
   }
   bindDestinationInput(el: HTMLInputElement) {
     const autocomplete = this.setAutoCompleteInput(el);
     if (!autocomplete) return;
+    el.value = this.destinationAddress.formatted_address!;
     autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
       if (place.geometry?.location) {
         this.changeMapLocation(place.geometry?.location);
         this.setSearchMarkerPosition(place.geometry.location);
-        this.destinationAddress = place.geometry.location;
+        this.destinationAddress = place;
       }
     });
   }
@@ -206,10 +215,10 @@ export class MapService {
     return this.directionsService.route(
       {
         origin: {
-          location: this.originAddress,
+          location: this.originAddress.geometry?.location,
         },
         destination: {
-          location: this.destinationAddress,
+          location: this.destinationAddress.geometry?.location,
         },
         travelMode: travelMode || google.maps.TravelMode.DRIVING,
       },
@@ -220,33 +229,56 @@ export class MapService {
     );
   }
 
-  getPlaceFromQuery(queryStr: string) {
+  calculateAndDisplayReverseRoute(travelMode: google.maps.TravelMode) {
+    this.searchMarker.setVisible(false);
+    return this.directionsService.route(
+      {
+        origin: {
+          location: this.destinationAddress.geometry?.location,
+        },
+        destination: {
+          location: this.originAddress.geometry?.location,
+        },
+        travelMode: travelMode || google.maps.TravelMode.BICYCLING,
+      },
+      (response) => {
+        console.log(response);
+        return this.directionsRenderer.setDirections(response);
+      }
+    );
+  }
+
+  setOriginFromQuery(queryStr: string) {
     let autocompleteService = new google.maps.places.AutocompleteService();
     let request = { input: queryStr };
     autocompleteService.getPlacePredictions(
       request,
       (predictionsArr, placesServiceStatus) => {
-        console.log(
-          'getting place predictions :: predictionsArr = ',
-          predictionsArr,
-          '\n',
-          'placesServiceStatus = ',
-          placesServiceStatus
-        );
-
         let placeRequest = { placeId: predictionsArr[0].place_id };
         const map = this.getMap();
         let placeService = new google.maps.places.PlacesService(map!);
         placeService.getDetails(
           placeRequest,
           (placeResult, placeServiceStatus) => {
-            console.log(
-              'placeService :: placeResult = ',
-              placeResult,
-              '\n',
-              'placeServiceStatus = ',
-              placeServiceStatus
-            );
+            this.originAddress = placeResult;
+          }
+        );
+      }
+    );
+  }
+  setDestinationFromQuery(queryStr: string) {
+    let autocompleteService = new google.maps.places.AutocompleteService();
+    let request = { input: queryStr };
+    autocompleteService.getPlacePredictions(
+      request,
+      (predictionsArr, placesServiceStatus) => {
+        let placeRequest = { placeId: predictionsArr[0].place_id };
+        const map = this.getMap();
+        let placeService = new google.maps.places.PlacesService(map!);
+        placeService.getDetails(
+          placeRequest,
+          (placeResult, placeServiceStatus) => {
+            this.destinationAddress = placeResult;
           }
         );
       }

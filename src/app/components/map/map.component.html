@@ -1,11 +1,6 @@
 
 <app-search-bar *ngIf="!isDirectionsBarToggled; else directionsBar"></app-search-bar>
-<button (click)="toggleDirectionsBar()">{{isDirectionsBarToggled?"search":"directions"}}</button>
 
-<ng-template #directionsBar>
-    <app-directions-bar></app-directions-bar>
-
-</ng-template>
 
 <div #map id="mapDiv" class="map" ></div>
 
@@ -16,4 +11,18 @@
     <span >{{currentPlace?.formatted_address}}</span>
   </div>
 
-  <button (click)="resetMap()">Reset Map</button>
+ <div class="action-footer">
+    <button *ngIf="isDirectionsBarToggled" class="button" (click)="toggleDirectionsBar()">
+        <i class="fa fa-chevron-left"></i>
+    </button>
+       <button *ngIf="!isDirectionsBarToggled" class="button" (click)="toggleDirectionsBar()" >
+            <i class="fa fa-diamond-turn-right"></i>Directions
+        </button>
+
+    <ng-template #directionsBar>
+        <app-directions-bar></app-directions-bar>
+    
+    </ng-template>
+    <button (click)="resetMap()" class="button">Reset Map</button>
+
+ </div> 

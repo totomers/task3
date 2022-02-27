@@ -1,17 +1,26 @@
 <div class="main-container">
 <div class="input-group">
     <div class="form-control">
-        <label>Origin</label>
-        <input id="origin" type="text" >
+
+        <div class="bar">
+            <input id="origin"  class="search-bar" type="text" title="Search" >
+            <a href="#"> <i  class="fa-solid fa-xmark"></i></a>
+          </div>
+          <div class="bar">
+            <input id="destination"  class="search-bar" type="text" title="Search">
+            <a href="#"> <i class="fa-solid fa-xmark"></i></a>
+          </div>
     </div>
-    <div class="form-control">
-        <label>Destination</label>
-        <input id="destination" type="text" >
+    <div >
+        <i class="fa fa-repeat icon-button" (click)="reverseDisplayRoute()" ></i>
+
     </div>
+
 </div>
 <div class="button-group"> 
-    <button (click)="calculateAndDisplayRoute('BICYCLING')">Directions bike</button>
-    <button (click)="calculateAndDisplayRoute('DRIVING')">Directions car</button>
-    <button (click)="calculateAndDisplayRoute('WALKING')">Directions walk</button>
+    <button class="button" [ngClass]="travelMode==='BICYCLING'?'selected':''" (click)="calculateAndDisplayRoute('BICYCLING')"><i class="fa fa-bicycle"></i> Bike </button>
+    <button class="button"[ngClass]="travelMode==='DRIVING'?'selected':''"  (click)="calculateAndDisplayRoute('DRIVING')"> <i class="fa fa-car"></i> Car</button>
+    <button class="button" [ngClass]="travelMode==='WALKING'?'selected':''"  (click)="calculateAndDisplayRoute('WALKING')"> <i class="fa fa-person-hiking"></i> Walk</button>
   </div>
+<button class="button direction-button" (click)="calculateAndDisplayRoute()">Get Directions</button>
 </div>

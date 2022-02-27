@@ -1,6 +1,31 @@
 @import "../../../styles/mixins.scss";
+@import "../../../styles/variables.scss";
+@import "../../../styles/breakpoints.scss";
 
 .map {
-  width: 600px;
-  height: 600px;
+  width: 700px;
+  height: 500px;
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+  @include media($laptop) {
+    width: 700px;
+    height: 500px;
+  }
+  @include media($tablet) {
+    width: 400px;
+    height: 400px;
+  }
+  @include media($mobile) {
+    width: 300px;
+    height: 300px;
+  }
+}
+
+.action-footer {
+  @include flex-between();
+  button {
+    border-radius: 10px;
+    color: white;
+    background-color: $primary;
+  }
 }
