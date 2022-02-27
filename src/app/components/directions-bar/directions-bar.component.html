@@ -1,0 +1,17 @@
+<div class="main-container">
+<div class="input-group">
+    <div class="form-control">
+        <label>Origin</label>
+        <input type="text" >
+    </div>
+    <div class="form-control">
+        <label>Destination</label>
+        <input type="text" >
+    </div>
+</div>
+<div class="button-group"> 
+    <button (click)="calculateAndDisplayRoute('BICYCLING')">Directions bike</button>
+    <button (click)="calculateAndDisplayRoute('DRIVING')">Directions car</button>
+    <button (click)="calculateAndDisplayRoute('WALKING')">Directions walk</button>
+  </div>
+</div>

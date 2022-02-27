@@ -1,0 +1,15 @@
+@import "../../../styles//mixins.scss";
+
+.main-container {
+  @include flex-center(column);
+  @include card();
+}
+
+.input-group {
+  padding: 3px;
+}
+
+.button-group {
+  @include flex-between();
+  width: 100%;
+}

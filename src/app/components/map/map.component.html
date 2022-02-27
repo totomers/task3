@@ -1,20 +1,16 @@
 <div class="main-container">
     <div class="form-control">
-        <label >Source:</label>
+        <label >Search:</label>
         <input #search type="text">
     </div>
-    <div class="form-control">
-        <label >Destination:</label>
-        <input #autocomplete2 type="text">
-    </div>
 </div>
+
+<app-directions-bar></app-directions-bar>
 
 <div #map style="width:400px;height:400px"></div>
 
 <div #infowindowContent>
+    <span #placeIcon ></span><br />
     <span #placeName class="title"></span><br />
     <span #placeAddress></span>
-  </div>
-  <div>
-      <button (click)="calculateAndDisplayRoute()">Directions</button>
   </div>
