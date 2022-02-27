@@ -1,8 +1,13 @@
-<app-search-bar></app-search-bar>
 
-<app-directions-bar></app-directions-bar>
+<app-search-bar *ngIf="!isDirectionsBarToggled; else directionsBar"></app-search-bar>
+<button (click)="toggleDirectionsBar()">{{isDirectionsBarToggled?"search":"directions"}}</button>
 
-<div #map id="mapDiv" style="width:400px;height:400px"></div>
+<ng-template #directionsBar>
+    <app-directions-bar></app-directions-bar>
+
+</ng-template>
+
+<div #map id="mapDiv" class="map" ></div>
 
 <div id="infoWindowDiv">
     <span >{{currentPlace?.icon}}</span>

@@ -9,18 +9,21 @@ import { AddressService } from './address.service';
 export class MapService {
   private readonly _map = new BehaviorSubject<google.maps.Map | null>(null);
   readonly map$ = this._map.asObservable();
+  private readonly _currentPlace =
+    new BehaviorSubject<google.maps.places.PlaceResult | null>(null);
+  readonly currentPlace$ = this._currentPlace.asObservable();
+  // _cuurentPlace: google.maps.places.PlaceResult;
   searchMarker: google.maps.Marker;
   infoWindow: google.maps.InfoWindow;
-  currentPlace: google.maps.places.PlaceResult;
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer();
+  DEFAULT_MAP_LOCATION: google.maps.LatLng;
   originAddress: google.maps.LatLng;
   destinationAddress: google.maps.LatLng;
-  DEFAULT_MAP_LOCATION: google.maps.LatLng;
   CUSTOM_MAP_STYLE_ID: string = 'd6b0915170f4b0bf';
 
   constructor(private addressService: AddressService) {
-    this.DEFAULT_MAP_LOCATION = this.addressService.getWorkAddress();
+    this.DEFAULT_MAP_LOCATION = this.addressService.getWorkAddressLocation();
   }
 
   //Initialize a google map object by binding it to an element on the DOM.
@@ -33,7 +36,7 @@ export class MapService {
     }
 
     const mapProperties = {
-      center: this.addressService.getWorkAddress(),
+      center: this.addressService.getWorkAddressLocation(),
       zoom: 15,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       mapId: this.CUSTOM_MAP_STYLE_ID,
@@ -56,6 +59,18 @@ export class MapService {
     this.changeMapLocation(this.DEFAULT_MAP_LOCATION);
   }
 
+  setCurrentPlace(currentPlace: google.maps.places.PlaceResult) {
+    this._currentPlace.next(currentPlace);
+  }
+
+  getCurrentPlace() {
+    return this.currentPlace$;
+  }
+  getCurrentPlaceValue() {
+    return this._currentPlace.getValue();
+  }
+
+  //NEED TO FINISH INFO WINDOW
   setInfoWindow(el: HTMLElement) {
     const infowindow = new google.maps.InfoWindow();
 
@@ -66,10 +81,9 @@ export class MapService {
   setAutoCompleteInput(el: HTMLInputElement) {
     if (!el) return;
     //CONFIGURE
-    const options = {
+    const options: google.maps.places.AutocompleteOptions = {
       fields: ['formatted_address', 'geometry', 'name'],
       componentRestrictions: { country: 'IL' },
-
       strictBounds: false,
       types: ['establishment'],
     };
@@ -83,10 +97,6 @@ export class MapService {
 
     //GET MAP
     const map = this.getMap()!;
-    console.log(
-      'mapService wants to connect autocomplete object to the MAP OBJECT and to DOM ELEMENT',
-      map
-    );
     //ADD GOOGLE AUTOCOMPLETE OBJECT TO MAP OBJECT
     google.maps.event.addListener(map, 'bounds_changed', function () {
       //@ts-ignore
@@ -96,7 +106,7 @@ export class MapService {
     return autocomplete;
   }
 
-  setSearchInput(el: HTMLInputElement) {
+  bindSearchInput(el: HTMLInputElement) {
     const autocomplete = this.setAutoCompleteInput(el);
     if (!autocomplete) return;
 
@@ -105,6 +115,7 @@ export class MapService {
       // this.infowindow.close();
       this.searchMarker.setVisible(false);
       const place = autocomplete.getPlace();
+      this.setCurrentPlace(place);
       el.value = ''; //feature - reset input value at the end of input place search, when option dropdown option is clicked
       if (!place.geometry || !place.geometry.location) {
         // User entered the name of a Place  that was not suggested and
@@ -119,8 +130,8 @@ export class MapService {
         this.changeMapBounds(place.geometry.viewport);
       } else {
         this.changeMapLocation(place.geometry.location);
+        this.originAddress = place.geometry.location; //for directions feature to automatically start directions panel with the last searched location
       }
-
       this.setSearchMarkerPosition(place.geometry.location);
 
       // this.placeAddress.nativeElement.textContent = place.icon;
@@ -151,7 +162,7 @@ export class MapService {
       anchorPoint: new google.maps.Point(0, -29),
     });
 
-    marker.setPosition(this.addressService.getWorkAddress());
+    marker.setPosition(this.addressService.getWorkAddressLocation());
     marker.setVisible(true);
     this.searchMarker = marker;
   }
@@ -163,9 +174,11 @@ export class MapService {
     this.searchMarker.setVisible(true);
   }
 
-  setOriginInput(el: HTMLInputElement) {
+  bindOriginInput(el: HTMLInputElement) {
     const autocomplete = this.setAutoCompleteInput(el);
     if (!autocomplete) return;
+    console.log(this.getCurrentPlaceValue());
+    console.log(autocomplete);
     autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
       if (place.geometry?.location) {
@@ -175,7 +188,7 @@ export class MapService {
       }
     });
   }
-  setDestinationInput(el: HTMLInputElement) {
+  bindDestinationInput(el: HTMLInputElement) {
     const autocomplete = this.setAutoCompleteInput(el);
     if (!autocomplete) return;
     autocomplete.addListener('place_changed', () => {
@@ -203,6 +216,39 @@ export class MapService {
       (response) => {
         console.log(response);
         return this.directionsRenderer.setDirections(response);
+      }
+    );
+  }
+
+  getPlaceFromQuery(queryStr: string) {
+    let autocompleteService = new google.maps.places.AutocompleteService();
+    let request = { input: queryStr };
+    autocompleteService.getPlacePredictions(
+      request,
+      (predictionsArr, placesServiceStatus) => {
+        console.log(
+          'getting place predictions :: predictionsArr = ',
+          predictionsArr,
+          '\n',
+          'placesServiceStatus = ',
+          placesServiceStatus
+        );
+
+        let placeRequest = { placeId: predictionsArr[0].place_id };
+        const map = this.getMap();
+        let placeService = new google.maps.places.PlacesService(map!);
+        placeService.getDetails(
+          placeRequest,
+          (placeResult, placeServiceStatus) => {
+            console.log(
+              'placeService :: placeResult = ',
+              placeResult,
+              '\n',
+              'placeServiceStatus = ',
+              placeServiceStatus
+            );
+          }
+        );
       }
     );
   }

@@ -19,6 +19,8 @@ export class MapComponent implements OnInit {
   @ViewChild('infowindowContent') infowindowContent: ElementRef;
   @ViewChild('placeName') placeName: ElementRef;
   @ViewChild('placeAddress') placeAddress: ElementRef;
+
+  isDirectionsBarToggled: boolean = false;
   map: google.maps.Map;
   currentPlace: google.maps.places.PlaceResult | null;
   marker: google.maps.Marker;
@@ -33,5 +35,8 @@ export class MapComponent implements OnInit {
 
   resetMap() {
     this.mapService.resetMap();
+  }
+  toggleDirectionsBar() {
+    this.isDirectionsBarToggled = this.isDirectionsBarToggled ? false : true;
   }
 }

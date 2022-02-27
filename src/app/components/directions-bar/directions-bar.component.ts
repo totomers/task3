@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ADDRESSES } from 'src/app/data-variables';
+import { AddressService } from 'src/app/services/address.service';
 import { MapService } from 'src/app/services/map.service';
 
 @Component({
@@ -13,14 +14,17 @@ export class DirectionsBarComponent implements OnInit {
   ngOnInit(): void {
     // this.origin = ADDRESSES.home.address;
     // this.destination = ADDRESSES.work.address;
+
     const originHTMLInput = document.getElementById(
       'origin'
     ) as HTMLInputElement;
     const destinationHTMLInput = document.getElementById(
       'destination'
     ) as HTMLInputElement;
-    this.mapService.setOriginInput(originHTMLInput);
-    this.mapService.setDestinationInput(destinationHTMLInput);
+    // originHTMLInput.value =
+    //   this.mapService.getCurrentPlaceValue()?.formatted_address || '';
+    this.mapService.bindOriginInput(originHTMLInput);
+    this.mapService.bindDestinationInput(destinationHTMLInput);
   }
 
   calculateAndDisplayRoute(travelMode: 'BICYCLING' | 'WALKING' | 'DRIVING') {

@@ -22,6 +22,6 @@ export class SearchBarComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.mapService.setSearchInput(this.searchElement?.nativeElement);
+    this.mapService.bindSearchInput(this.searchElement?.nativeElement);
   }
 }

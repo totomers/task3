@@ -7,10 +7,14 @@ import { ADDRESSES } from '../data-variables';
 export class AddressService {
   constructor() {}
 
-  getHomeAddress() {
+  getDefaultAddress() {
+    return ADDRESSES.home.address;
+  }
+
+  getHomeAddressLocation() {
     return new google.maps.LatLng(ADDRESSES.home.lat, ADDRESSES.home.long);
   }
-  getWorkAddress() {
+  getWorkAddressLocation() {
     return new google.maps.LatLng(ADDRESSES.work.lat, ADDRESSES.work.long);
   }
 }
