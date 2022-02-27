@@ -1,7 +1,11 @@
 <div class="main-container">
     <div class="form-control">
-        <label >Address:</label>
-        <input #autocomplete type="text">
+        <label >Source:</label>
+        <input #search type="text">
+    </div>
+    <div class="form-control">
+        <label >Destination:</label>
+        <input #autocomplete2 type="text">
     </div>
 </div>
 
@@ -10,4 +14,7 @@
 <div #infowindowContent>
     <span #placeName class="title"></span><br />
     <span #placeAddress></span>
+  </div>
+  <div>
+      <button (click)="calculateAndDisplayRoute()">Directions</button>
   </div>
