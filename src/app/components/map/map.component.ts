@@ -6,6 +6,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import {} from 'googlemaps';
+import { ADDRESSES } from 'src/app/data-variables';
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -70,19 +71,20 @@ export class MapComponent implements OnInit, AfterViewInit {
       const infowindow = new google.maps.InfoWindow();
 
       infowindow.setContent(this.infowindowContent.nativeElement);
+      console.log('info window content', this.infowindowContent.nativeElement);
 
       const marker = new google.maps.Marker({
         map: this.map,
         anchorPoint: new google.maps.Point(0, -29),
       });
-      const marker2 = new google.maps.Marker({
-        map: this.map,
-        anchorPoint: new google.maps.Point(0, -29),
-      });
+      // const marker2 = new google.maps.Marker({
+      //   map: this.map,
+      //   anchorPoint: new google.maps.Point(0, -29),
+      // });
       marker.setPosition(OFFICE_ADDRESS);
       marker.setVisible(true);
-      marker2.setPosition(OFFICE_ADDRESS2);
-      marker2.setVisible(true);
+      // marker2.setPosition(OFFICE_ADDRESS2);
+      // marker2.setVisible(true);
 
       autocomplete.addListener('place_changed', () => {
         infowindow.close();
@@ -116,16 +118,13 @@ export class MapComponent implements OnInit, AfterViewInit {
   }
 
   calculateAndDisplayRoute() {
-    const OFFICE_ADDRESS = new google.maps.LatLng(32.06462, 34.77176);
-    const OFFICE_ADDRESS2 = new google.maps.LatLng(32.063705, 34.771525);
-    const HOME_ADDRESS = new google.maps.LatLng(32.08345, 34.776772);
     return this.directionsService.route(
       {
         origin: {
-          query: 'Netanya',
+          query: ADDRESSES.home.address,
         },
         destination: {
-          query: 'Jerusalem',
+          query: ADDRESSES.work.address,
         },
         travelMode: google.maps.TravelMode.DRIVING,
       },
