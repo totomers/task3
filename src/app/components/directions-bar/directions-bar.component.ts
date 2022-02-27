@@ -8,20 +8,23 @@ import { MapService } from 'src/app/services/map.service';
   styleUrls: ['./directions-bar.component.scss'],
 })
 export class DirectionsBarComponent implements OnInit {
-  origin: string;
-  destination: string;
-
   constructor(private mapService: MapService) {}
 
   ngOnInit(): void {
-    this.origin = ADDRESSES.home.address;
-    this.destination = ADDRESSES.work.address;
+    // this.origin = ADDRESSES.home.address;
+    // this.destination = ADDRESSES.work.address;
+    const originHTMLInput = document.getElementById(
+      'origin'
+    ) as HTMLInputElement;
+    const destinationHTMLInput = document.getElementById(
+      'destination'
+    ) as HTMLInputElement;
+    this.mapService.setOriginInput(originHTMLInput);
+    this.mapService.setDestinationInput(destinationHTMLInput);
   }
 
   calculateAndDisplayRoute(travelMode: 'BICYCLING' | 'WALKING' | 'DRIVING') {
     return this.mapService.calculateAndDisplayRoute(
-      this.origin,
-      this.destination,
       google.maps.TravelMode[travelMode]
     );
   }
