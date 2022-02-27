@@ -1,5 +1,6 @@
 import { ElementRef, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { ADDRESSES } from '../data-variables';
 import { AddressService } from './address.service';
 
 @Injectable({
@@ -8,14 +9,22 @@ import { AddressService } from './address.service';
 export class MapService {
   private readonly _map = new BehaviorSubject<google.maps.Map | null>(null);
   readonly map$ = this._map.asObservable();
-  marker: google.maps.Marker;
+  searchMarker: google.maps.Marker;
+  infoWindow: google.maps.InfoWindow;
+  currentPlace: google.maps.places.PlaceResult;
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer();
-  constructor(private addressService: AddressService) {}
+  DEFAULT_MAP_LOCATION: google.maps.LatLng;
+
+  constructor(private addressService: AddressService) {
+    this.DEFAULT_MAP_LOCATION = this.addressService.getWorkAddress();
+  }
 
   //Initialize a google map object by binding it to an element on the DOM.
-  setMap(el: ElementRef) {
-    const mapDiv = el?.nativeElement;
+  initMap() {}
+
+  setMap(el: HTMLElement) {
+    const mapDiv = el;
     if (!mapDiv) {
       alert('-error finding dom element for map object to bind to-');
     }
@@ -27,11 +36,119 @@ export class MapService {
     };
     const map = new google.maps.Map(mapDiv, mapProperties);
     this.directionsRenderer.setMap(map); // For directions API
+    this.createSearchMarker(map); // create default marker at the maps default position
+
     this._map.next(map);
   }
 
   getMap() {
     return this._map.getValue();
+  }
+
+  resetMap() {
+    this.searchMarker.setVisible(false);
+    this.changeMapLocation(this.DEFAULT_MAP_LOCATION);
+  }
+
+  setInfoWindow(el: HTMLElement) {
+    const infowindow = new google.maps.InfoWindow();
+
+    infowindow.setContent(el);
+    this.infoWindow = infowindow;
+  }
+
+  setSearchInput(el: HTMLInputElement) {
+    if (!el) return;
+
+    //CONFIGURE
+    const options = {
+      fields: ['formatted_address', 'geometry', 'name'],
+      componentRestrictions: { country: 'IL' },
+
+      strictBounds: false,
+      types: ['establishment'],
+    };
+    const inputElement = el;
+
+    //CREATE GOOGLE AUTOCOMPLETE OBJECT & BIND TO DOM INPUT ELEMENT
+    const autocomplete = new google.maps.places.Autocomplete(
+      inputElement,
+      options
+    );
+
+    //GET MAP
+    const map = this.getMap()!;
+    console.log(
+      'mapService wants to connect autocomplete object to the MAP OBJECT and to DOM ELEMENT',
+      map
+    );
+    //ADD GOOGLE AUTOCOMPLETE OBJECT TO MAP OBJECT
+    google.maps.event.addListener(map, 'bounds_changed', function () {
+      //@ts-ignore
+      autocomplete.bindTo('bounds', map);
+    });
+
+    //ADD SEARCH FUNCTIONALITY ON DROPDOWN CLICK EVENT
+    autocomplete.addListener('place_changed', () => {
+      // this.infowindow.close();
+      this.searchMarker.setVisible(false);
+      const place = autocomplete.getPlace();
+      inputElement.value = ''; //feature - reset input value at the end of input place search, when option dropdown option is clicked
+      if (!place.geometry || !place.geometry.location) {
+        // User entered the name of a Place  that was not suggested and
+        // pressed the Enter key, or the Place Details request failed.
+        window.alert("No details available for input: '" + place.name + "'");
+        return;
+      }
+
+      // If the place has a geometry, then present it on a map.
+
+      if (place.geometry.viewport) {
+        this.changeMapBounds(place.geometry.viewport);
+      } else {
+        this.changeMapLocation(place.geometry.location);
+      }
+
+      this.setSearchMarkerPosition(place.geometry.location);
+
+      // this.placeAddress.nativeElement.textContent = place.icon;
+      // this.placeName.nativeElement.textContent = place.name;
+      // this.placeAddress.nativeElement.textContent = place.formatted_address;
+
+      // this.infoWindow.open(map, this.searchMarker);
+    });
+  }
+
+  // setInfoWindowDetails(place: google.maps.places.PlaceResult) {
+
+  // }
+
+  changeMapBounds(bounds: google.maps.LatLngBounds) {
+    const map = this.getMap()!;
+    map.fitBounds(bounds);
+  }
+  changeMapLocation(location: google.maps.LatLng) {
+    const map = this.getMap()!;
+    map.setCenter(location);
+    map.setZoom(17);
+  }
+
+  createSearchMarker(map: google.maps.Map) {
+    const marker = new google.maps.Marker({
+      map,
+      anchorPoint: new google.maps.Point(0, -29),
+    });
+
+    marker.setPosition(this.addressService.getWorkAddress());
+    marker.setVisible(true);
+    this.searchMarker = marker;
+  }
+
+  setSearchMarkerPosition(
+    latlng: google.maps.LatLng | google.maps.ReadonlyLatLngLiteral | null
+  ) {
+    this.searchMarker.setPosition(latlng);
+    this.searchMarker.setVisible(true);
   }
 
   calculateAndDisplayRoute(
@@ -54,9 +171,5 @@ export class MapService {
         return this.directionsRenderer.setDirections(response);
       }
     );
-    // .then((response) => {
-    //   this.directionsRenderer.setDirections(response);
-    // })
-    // .catch((e:any) => window.alert("Directions request failed due to " + status));
   }
 }

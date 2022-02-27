@@ -1,6 +1,1 @@
 @import "../../../styles/mixins.scss";
-
-.main-container{
-@include flex-center('column');
-@include card();
-}

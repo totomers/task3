@@ -1,16 +1,14 @@
-<div class="main-container">
-    <div class="form-control">
-        <label >Search:</label>
-        <input #search type="text">
-    </div>
-</div>
+<app-search-bar></app-search-bar>
 
 <app-directions-bar></app-directions-bar>
 
-<div #map style="width:400px;height:400px"></div>
+<div #map id="mapDiv" style="width:400px;height:400px"></div>
 
-<div #infowindowContent>
-    <span #placeIcon ></span><br />
-    <span #placeName class="title"></span><br />
-    <span #placeAddress></span>
+<div id="infoWindowDiv">
+    <span >{{currentPlace?.icon}}</span>
+    <br />
+    <span class="title">{{currentPlace?.name}}</span><br />
+    <span >{{currentPlace?.formatted_address}}</span>
   </div>
+
+  <button (click)="resetMap()">Reset Map</button>
