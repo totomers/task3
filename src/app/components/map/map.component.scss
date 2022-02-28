@@ -2,6 +2,10 @@
 @import "../../../styles/variables.scss";
 @import "../../../styles/breakpoints.scss";
 
+.map-container {
+  position: relative;
+}
+
 .map {
   width: 700px;
   height: 500px;

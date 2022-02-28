@@ -6,6 +6,7 @@ import { MapComponent } from './components/map/map.component';
 import { AutocompleteComponent } from './components/autocomplete/autocomplete.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { DirectionsBarComponent } from './components/directions-bar/directions-bar.component';
+import { InfoWindowComponent } from './components/info-window/info-window.component';
 
 @NgModule({
   declarations: [
@@ -14,6 +15,7 @@ import { DirectionsBarComponent } from './components/directions-bar/directions-b
     AutocompleteComponent,
     SearchBarComponent,
     DirectionsBarComponent,
+    InfoWindowComponent,
   ],
   imports: [BrowserModule],
   providers: [],

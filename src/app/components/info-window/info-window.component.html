@@ -1,0 +1,11 @@
+<div class="info-window" *ngIf="currentPlace$|async as currentPlace " >
+<i>{{currentPlace.icon}}</i>
+<div class="title-bar">
+    <div class="title">{{currentPlace.name}} <button class="button"><i class="fa fa-add"></i>Save</button></div>
+</div>
+<div>{{currentPlace.opening_hours}}</div>
+<div>{{currentPlace.formatted_address}}</div>
+<div>{{currentPlace.formatted_phone_number}}</div>
+
+
+</div>

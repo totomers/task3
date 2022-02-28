@@ -32,7 +32,7 @@ export class MapService {
 
   //Initialize a google map object by binding it to an element on the DOM.
 
-  setMap(el: HTMLElement) {
+  setMap(el: HTMLElement, isStyled: boolean = false) {
     const mapDiv = el;
     if (!mapDiv) {
       alert('-error finding dom element for map object to bind to-');
@@ -42,11 +42,12 @@ export class MapService {
       center: this.addressService.getWorkAddressLocation(),
       zoom: 15,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
-      mapId: this.CUSTOM_MAP_STYLE_ID,
+      mapId: isStyled ? this.CUSTOM_MAP_STYLE_ID : '',
     };
     const map = new google.maps.Map(mapDiv, mapProperties);
 
     this.directionsRenderer.setMap(map); // For directions API
+
     this.createSearchMarker(map); // create default marker at the maps default position
 
     this._map.next(map);
@@ -59,6 +60,8 @@ export class MapService {
   resetMap() {
     const map = this.getMap();
     this.searchMarker.setVisible(false);
+    this.directionsRenderer.set('directions', null);
+    this.createSearchMarker(map!);
     this.changeMapLocation(this.DEFAULT_MAP_LOCATION);
   }
 
@@ -89,7 +92,7 @@ export class MapService {
       fields: ['formatted_address', 'geometry', 'name'],
       componentRestrictions: { country: 'IL' },
       strictBounds: false,
-      types: ['establishment', 'address'],
+      types: ['establishment'],
     };
     const inputElement = el;
 
@@ -208,6 +211,10 @@ export class MapService {
         this.destinationAddress = place;
       }
     });
+  }
+
+  resetDirectionRoute() {
+    this.directionsRenderer.unbindAll();
   }
 
   calculateAndDisplayRoute(travelMode: google.maps.TravelMode) {

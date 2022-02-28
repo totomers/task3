@@ -19,7 +19,7 @@ export class MapComponent implements OnInit {
   @ViewChild('infowindowContent') infowindowContent: ElementRef;
   @ViewChild('placeName') placeName: ElementRef;
   @ViewChild('placeAddress') placeAddress: ElementRef;
-
+  isStyled: boolean = false;
   isDirectionsBarToggled: boolean = false;
   map: google.maps.Map;
   currentPlace: google.maps.places.PlaceResult | null;
@@ -36,10 +36,18 @@ export class MapComponent implements OnInit {
     this.mapService.resetMap();
   }
   toggleDirectionsBar() {
-    this.isDirectionsBarToggled = this.isDirectionsBarToggled ? false : true;
+    if (this.isDirectionsBarToggled) {
+      this.resetMap();
+      this.isDirectionsBarToggled = false;
+    } else this.isDirectionsBarToggled = true;
   }
 
   calculateAndDisplayRoute() {
     this.mapService.calculateAndDisplayRoute(google.maps.TravelMode.BICYCLING);
+  }
+
+  toggleMapStyle() {
+    this.isStyled = this.isStyled ? false : true;
+    this.mapService.setMap(document.getElementById('mapDiv')!, this.isStyled);
   }
 }

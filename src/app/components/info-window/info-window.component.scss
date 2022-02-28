@@ -1,0 +1,30 @@
+@import "../../../styles/variables.scss";
+@import "../../../styles/mixins.scss";
+.info-window {
+  position: absolute;
+  top: 75%;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.897);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  box-shadow: 0px -2px 3px 0px $lightslategray;
+  @include robotoFont();
+  font-weight: 400;
+  color: $darkgray;
+  padding: 6px;
+}
+
+.title-bar {
+  @include flex-between();
+  button {
+    width: 20%;
+  }
+}
+.title {
+  font-size: larger;
+  font-weight: 500;
+  color: rgb(31, 31, 31);
+  flex: 1;
+}
