@@ -7,6 +7,7 @@ import { AutocompleteComponent } from './components/autocomplete/autocomplete.co
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { DirectionsBarComponent } from './components/directions-bar/directions-bar.component';
 import { InfoWindowComponent } from './components/info-window/info-window.component';
+import { MarkerListComponent } from './components/marker-list/marker-list.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { InfoWindowComponent } from './components/info-window/info-window.compon
     SearchBarComponent,
     DirectionsBarComponent,
     InfoWindowComponent,
+    MarkerListComponent,
   ],
   imports: [BrowserModule],
   providers: [],
